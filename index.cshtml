@@ -1,0 +1,111 @@
+@{
+    ViewData["Title"] = "Tabulator自定義延伸功能";
+}
+@section Styles {
+    <link href="~/lib/tabulator/css/tabulator.min.css" rel="stylesheet" />
+    <style>
+        .card,
+        .btn-group {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        /* 編輯模式改變單元格外觀 */
+        .tabulator {
+            background-color: #E7E7E7 !important;
+        }
+    </style>
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mt-3">
+                <div class="card-body">
+                    @* === 表格區域 === *@
+                    <div class="col-md-12">
+                        <div id="tbSample"></div>
+                    </div>
+                </div>
+
+                <!-- 新增 Modal -->
+                <div class="modal fade" id="modalAdd" tabindex="-1" aria-labelledby="modalAddLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalAddLabel">新增資料</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <label>代號：</label>
+                                <input type="text" id="addNO" class="form-control">
+                                <label>名稱：</label>
+                                <input type="text" id="addNAME" class="form-control">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="btnSaveAdd">儲存</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 編輯 Modal -->
+                <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalEditLabel">編輯資料</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <label>代號：</label>
+                                <input type="text" id="editNO" class="form-control" disabled>
+                                <label>名稱：</label>
+                                <input type="text" id="editNAME" class="form-control">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-warning" id="btnSaveEdit">儲存變更</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 刪除確認 Modal -->
+                <div class="modal fade" id="modalDeleteConfirm" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalDeleteLabel">確認刪除</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>確定要刪除這筆資料嗎？</p>
+                                <p><strong id="deleteInfo"></strong></p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" id="btnConfirmDelete">確定刪除</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="~/lib/tabulator/js/tabulator.min.js"></script>
+
+    <script>
+        // 設定網址
+        const getTableDataUrl = '@Url.Action("TableData", "MyController")';
+        const getAddDataUrl = '@Url.Action("AddData", "MyController")';
+        const getEditDataUrl = '@Url.Action("EditData", "MyController")';
+        const getDeleteDataUrl = '@Url.Action("DeleteData", "MyController")';
+    </script>
+    
+    <script src="~/js/customTabulator.js"></script>
+}
