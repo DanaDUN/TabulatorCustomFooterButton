@@ -1,143 +1,123 @@
-/*
-  變數
-*/
+// 引用模組 js
+import { openModal, createTabulatorTable, createTableFooter, reloadData, createModal } from "./tabulatorFooterExt.js";
+
+/**
+ * 變數
+ */
 let selectedRowToDelete = null; // 存儲要刪除的行
 
-// **初始化表格**
-var tbSample = new Tabulator("#tbSample", {
-    layout: "fitData",
-    height: 700,
-    selectable: 1, // 允許選取 1 行
-    footerElement: createTableFooter(), // 使用函式生成按鈕區域
-
-    ajaxURL: getTableDataUrl,
-    ajaxConfig: "POST",
-    ajaxContentType: "json",
-
-    columns: [
+// 初始化表格
+// 這邊需要寫指定的表格設定、AJAX url，以及給個id
+var tbSample = createTabulatorTable(
+    "tbSample",
+    getTableDataUrl,
+    [
         { title: "代號", field: "NO" },
         { title: "名稱", field: "NAME" }
     ],
-
-    ajaxResponse: function (url, params, response) {
-        if (response && response.success && Array.isArray(response.data)) {
-            return response.data;
-        } else {
-            return [];
-        }
+    createTableFootertbSample,
+    {
+        layout: "fitData", 
+        height: 700
     }
-});
+);
 
-// **確保 rowClick 事件可以正常觸發**
-tbSample.on("rowClick", function (e, row) {
-    tbSample.deselectRow(); // 取消其他行的選取，確保只選一行
-    row.select(); // 手動選取行，確保 getSelectedRows() 可用
-});
-
-// **建立按鈕區域**
-function createTableFooter() {
-    let footer = document.createElement("div");
-    footer.className = "custom-tb-footer"; // 添加指定的 class 名稱
-    footer.style.borderTop = "1px solid #999"; // 設定 footer 上邊框
-    footer.innerHTML = `
-        <button id="btnAdd" class="btn text-dark px-1 py-1"><i class="bi bi-file-earmark-plus"></i></button>
-        <button id="btnEdit" class="btn text-dark px-1 py-1"><i class="bi bi-pencil-square"></i></button>
-        <button id="btnDelete" class="btn text-dark px-1 py-1"><i class="bi bi-trash3-fill"></i></button>
-        <button id="btnReload" class="btn text-dark px-1 py-1"><i class="bi bi-arrow-clockwise"></i></button>
-    `;
-
-    // **綁定按鈕事件**
-    setTimeout(() => {
-        document.getElementById("btnAdd").addEventListener("click", openAddModal);
-        document.getElementById("btnEdit").addEventListener("click", openEditModal);
-        document.getElementById("btnDelete").addEventListener("click", openDeleteConfirm);
-        document.getElementById("btnReload").addEventListener("click", reloadData);
-    }, 100); // 確保 DOM 加載後綁定
-
-    return footer;
+// 表格：按鈕組
+function createTableFootertbSample() {
+    return createTableFooter([
+        { id: "btnAddtbSample", icon: "bi bi-file-earmark-plus", onClick: openAddModaltbSample },
+        { id: "btnEdittbSample", icon: "bi bi-pencil-square", onClick: openEditModaltbSample },
+        { id: "btnDeletetbSample", icon: "bi bi-trash3-fill", onClick: openDeleteConfirmtbSample },
+        { id: "btnReloadtbSample", icon: "bi bi-arrow-clockwise", onClick: reloadDatatbSample }
+    ]);
 }
 
-// *開啟Modal(通用)
-function openModal(modalId) {
-    $("#" + modalId).modal("show");
+// 表格：重新整理
+function reloadDatatbSample() {
+    reloadData("tbSample", getTableDataUrl);
 }
 
-// 【重新整理】載入Data
-function reloadData() {
-    $("#tbSample").fadeOut(30, function () {
-        tbSample.replaceData(getTableDataUrl).then(function () {
-            $("#tbSample").fadeIn(30);
-        });
-    });
+// 表格：創建新增 Modal
+let modalAddtbSample = createModal(
+    "modalAddtbSample",
+    "新增資料",
+    `
+        <label>代號：</label>
+        <input type="text" id="addNO" class="form-control">
+        <label>名稱：</label>
+        <input type="text" id="addNAME" class="form-control">
+    `,
+    "btnSaveAddtbSample",
+    "新增"
+);
+document.body.appendChild(modalAddtbSample);
+
+// 表格：創建編輯 Modal
+let modalEdittbSample = createModal(
+    "modalEdittbSample",
+    "編輯",
+    `
+        <label>代號：</label>
+        <input type="text" id="editNO" class="form-control" disabled>
+        <label>名稱：</label>
+        <input type="text" id="editNAME" class="form-control">
+    `,
+    "btnSaveEdittbSample",
+    "儲存變更"
+);
+document.body.appendChild(modalEdittbSample);
+
+// 表格：創建刪除確認 Modal
+let modalDeleteConfirmtbSample = createModal(
+    "modalDeleteConfirmtbSample",
+    "刪除確認",
+    `
+        <p>確定要刪除這筆資料嗎？</p>
+        <p><strong id="deleteInfotbSample" style="color:blue;"></strong></p>
+    `,
+    "btnConfirmDeletetbSample",
+    "確定刪除"
+);
+document.body.appendChild(modalDeleteConfirmtbSample);
+
+
+// 表格：【新增Modal】開啟畫面
+function openAddModaltbSample() {
+    openModal("modalAddtbSample");
 }
-// 【新增】開啟新增Modal
-function openAddModal() {
-    openModal("modalAdd");
-}
-// 【編輯】開啟編輯Modal
-function openEditModal() {
+
+// 表格：【編輯Modal】開啟畫面
+function openEditModaltbSample() {
     let selectedRow = tbSample.getSelectedRows()[0];
 
     if (selectedRow) {
         let rowData = selectedRow.getData();
         $("#editNO").val(rowData.NO);
         $("#editNAME").val(rowData.NAME);
-        openModal("modalEdit");
+        openModal("modalEdittbSample");
     } else {
         toastr.warning('請選擇一筆資料進行編輯！', '提醒');
     }
 }
-// 【刪除】開啟刪除確認Modal
-function openDeleteConfirm() {
+
+// 表格：【刪除Modal】開啟畫面
+function openDeleteConfirmtbSample() {
     let selectedRow = tbSample.getSelectedRows()[0];
 
     if (selectedRow) {
         selectedRowToDelete = selectedRow; // 暫存選取的行
 
         let rowData = selectedRow.getData();
-        document.getElementById("deleteInfo").innerText = `代號: ${rowData.NO}，名稱: ${rowData.NAME}`;
+        document.getElementById("deleteInfotbSample").innerText = `代號: ${rowData.NO}、名稱: ${rowData.NAME}`;
 
-        openModal("modalDeleteConfirm"); // 顯示 Modal
+        openModal("modalDeleteConfirmtbSample"); // 顯示 Modal
     } else {
         toastr.warning('請選擇一筆資料進行刪除！', '提醒');
     }
 }
 
-// 【刪除】按下確認刪除後執行刪除
-document.getElementById("btnConfirmDelete").addEventListener("click", function () {
-    if (!selectedRowToDelete) return;
-
-    let rowData = selectedRowToDelete.getData(); // 取得要刪除的資料
-
-    $.ajax({
-        url: getDeleteDataUrl,
-        type: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({ NO: rowData.NO }),
-        success: function (response) {
-            if (response.success) {
-                toastr.success('刪除成功');
-
-                // 1 秒後重新載入資料
-                setTimeout(function () {
-                    reloadData();
-                }, 1000);
-
-                $("#modalDeleteConfirm").modal("hide"); // 關閉 Modal
-                selectedRowToDelete = null; // 清空暫存變數
-            } else {
-                toastr.error(response.message || '刪除失敗');
-            }
-        },
-        error: function () {
-            toastr.error('刪除失敗，請稍後再試');
-        }
-    });
-
-});
-
-// 【新增】按下儲存按鈕時，將資料加到 Tabulator 表格
-document.getElementById("btnSaveAdd").addEventListener("click", function () {
+// 表格：【新增功能】執行
+document.getElementById("btnSaveAddtbSample").addEventListener("click", function () {
     let newData = {
         NO: $("#addNO").val().trim(),
         NAME: $("#addNAME").val().trim()
@@ -146,7 +126,7 @@ document.getElementById("btnSaveAdd").addEventListener("click", function () {
     if (newData.NO && newData.NAME) {
         // 送資料到後端
         $.ajax({
-            url: getAddDataUrl,
+            url: getAddDataUrl, // 請確認你的 API 路徑是否正確
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(newData),
@@ -156,10 +136,10 @@ document.getElementById("btnSaveAdd").addEventListener("click", function () {
 
                     // 1 秒後重新載入資料
                     setTimeout(function () {
-                        reloadData();
+                        reloadDatatbSample();
                     }, 1000);
 
-                    $("#modalAdd").modal("hide"); // 關閉 Modal
+                    $("#modalAddtbSample").modal("hide"); // 關閉 Modal
                     $("#addNO, #addNAME").val(""); // 清空輸入欄位
                 } else {
                     toastr.error(response.message || '資料新增失敗');
@@ -174,8 +154,8 @@ document.getElementById("btnSaveAdd").addEventListener("click", function () {
     }
 });
 
-// 【編輯】按下儲存後變更資料
-document.getElementById("btnSaveEdit").addEventListener("click", function () {
+// 表格：【編輯功能】執行
+document.getElementById("btnSaveEdittbSample").addEventListener("click", function () {
     let updatedData = {
         NO: $("#editNO").val(),
         NAME: $("#editNAME").val().trim()
@@ -185,7 +165,7 @@ document.getElementById("btnSaveEdit").addEventListener("click", function () {
 
     if (selectedRow) {
         $.ajax({
-            url: getEditDataUrl,
+            url: getEditDataTUrl,
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(updatedData),
@@ -195,10 +175,10 @@ document.getElementById("btnSaveEdit").addEventListener("click", function () {
 
                     // 1 秒後重新載入資料
                     setTimeout(function () {
-                        reloadData();
+                        reloadDatatbSample();
                     }, 1000);
 
-                    $("#modalEdit").modal("hide"); // 關閉 Modal
+                    $("#modalEdittbSample").modal("hide"); // 關閉 Modal
                 } else {
                     toastr.error(response.message || '資料更新失敗');
                 }
@@ -210,5 +190,38 @@ document.getElementById("btnSaveEdit").addEventListener("click", function () {
     } else {
         toastr.warning('請選擇一筆資料進行編輯！', '提醒');
     }
+
+});
+
+// 表格：【刪除功能】執行
+document.getElementById("btnConfirmDeletetbSample").addEventListener("click", function () {
+    if (!selectedRowToDelete) return;
+
+    let rowData = selectedRowToDelete.getData(); // 取得要刪除的資料
+
+    $.ajax({
+        url: getDeleteDataUrl, // 請確認你的 API 路徑是否正確
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ NO: rowData.NO }),
+        success: function (response) {
+            if (response.success) {
+                toastr.success('刪除成功');
+
+                // 1 秒後重新載入資料
+                setTimeout(function () {
+                    reloadDatatbSample();
+                }, 1000);
+
+                $("#modalDeleteConfirmtbSample").modal("hide"); // 關閉 Modal
+                selectedRowToDelete = null; // 清空暫存變數
+            } else {
+                toastr.error(response.message || '刪除失敗');
+            }
+        },
+        error: function () {
+            toastr.error('刪除失敗，請稍後再試');
+        }
+    });
 
 });
