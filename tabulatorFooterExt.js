@@ -127,3 +127,32 @@ export function createModal(modalId, modalTitle, bodyContent, saveButtonId, save
 
     return modal;
 }
+
+
+// #region input 長度限制
+export function truncateByByte(str, maxBytes) {
+    let total = 0;
+    let result = '';
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];                                    // 取得當前字元
+        const charByte = char.charCodeAt(0) > 255 ? 2 : 1;      // 判斷字元的位元組大小
+        if (total + charByte > maxBytes) break;                 // 超過限制則停止
+        result += char;                                         // 累加字元
+        total += charByte;                                      // 累加位元組大小
+    }
+    return result;
+}
+
+export function applyByteLimitToInputs() {
+    document.querySelectorAll('input[data-byte-limit]').forEach(input => {  // 選取所有有 data-byte-limit 屬性的 input 元素
+        input.addEventListener('input', function () {                       // 綁定 input 事件
+            const maxBytes = parseInt(this.dataset.byteLimit, 10);          // 取得最大位元組數
+            const trimmed = truncateByByte(this.value, maxBytes);           // 截斷字串
+            if (this.value !== trimmed) {                                   // 如果值有變更
+                this.value = trimmed;                                       // 更新 input 值
+            }
+        });
+    });
+}
+// #endregion 
+
