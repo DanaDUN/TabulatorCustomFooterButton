@@ -1,5 +1,5 @@
 // 引用模組 js
-import { openModal, createTabulatorTable, createTableFooter, reloadData, createModal } from "./tabulatorFooterExt.js";
+import { openModal, createTabulatorTable, createTableFooter, reloadData, createModal, applyByteLimitToInputs } from "./tabulatorFooterExt.js";
 
 /**
  * 變數
