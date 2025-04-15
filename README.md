@@ -7,6 +7,8 @@ v1.1 - 將目前覺得可以獨立的部分寫成模組檔案，並且modal由ja
 
 v1.2 - 新增了input文字長度控制判斷。
 
+v1.3 - 加了如果要Master-Detail的做法。
+
 ## 注意事項
 - 這是 Core MVC 專案，所以 Layout 頁面已經有引用 Bootstrap 5、Bootstrap icon 和 jQuery 了。
 - 還有要記得引用 Tabulator 和 toastr 套件。
